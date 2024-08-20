@@ -1,3 +1,5 @@
 .venv/*
 output/*
 .env
+AdobePDF/resources/*
+__pycache__

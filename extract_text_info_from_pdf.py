@@ -73,21 +73,24 @@ class ExtractTextInfoFromPDF:
             result_asset: CloudAsset = pdf_services_response.get_result().get_resource()
             stream_asset: StreamAsset = pdf_services.get_content(result_asset)
 
-            # Creates an output stream and copy stream asset's content to it
-            output_file_path = self.create_output_file_path()
-            with open(output_file_path, "wb") as file:
-                file.write(stream_asset.get_input_stream())
+            # # Creates an output stream and copy stream asset's content to it
+            # output_file_path = self.create_output_file_path()
+            # with open(output_file_path, "wb") as file:
+            #     file.write(stream_asset.get_input_stream())
+
+            print("Extracted text from PDF:")
+            print(stream_asset)
 
         except (ServiceApiException, ServiceUsageException, SdkException) as e:
             logging.exception(f'Exception encountered while executing operation: {e}')
 
-    # Generates a string containing a directory structure and file name for the output file
-    @staticmethod
-    def create_output_file_path() -> str:
-        now = datetime.now()
-        time_stamp = now.strftime("%Y-%m-%dT%H-%M-%S")
-        os.makedirs("output/ExtractTextInfoFromPDF", exist_ok=True)
-        return f"output/ExtractTextInfoFromPDF/extract{time_stamp}.zip"
+    # # Generates a string containing a directory structure and file name for the output file
+    # @staticmethod
+    # def create_output_file_path() -> str:
+    #     now = datetime.now()
+    #     time_stamp = now.strftime("%Y-%m-%dT%H-%M-%S")
+    #     os.makedirs("output/ExtractTextInfoFromPDF", exist_ok=True)
+    #     return f"output/ExtractTextInfoFromPDF/extract{time_stamp}.zip"
 
 
 if __name__ == "__main__":
