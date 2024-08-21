@@ -16,9 +16,14 @@ from adobe.pdfservices.operation.pdfjobs.result.extract_pdf_result import Extrac
 # Initialize the logger
 logging.basicConfig(level=logging.INFO)
 
-def clean_json(content: json) -> json:
 
-    keys_to_remove = ['Bounds', 'Font', "HasClip", "Lang", "ObjectID", "attributes", "Path", "TextSize"]
+def remove_keys(content: json) -> json:
+    """
+    Remove unnecessary keys from the JSON content
+    """
+
+    keys_to_remove = ['Bounds', 'Font', "HasClip", "Lang",
+                      "ObjectID", "attributes", "Path", "TextSize"]
     for element in content['elements']:
         for key in keys_to_remove:
             if key in element:
@@ -31,12 +36,65 @@ def clean_json(content: json) -> json:
             continue
         if element.get('Text') == "\u2022 ":
             indices_to_remove.append(i)
-            
+
     for index in reversed(indices_to_remove):
         del content['elements'][index]
 
-    # print(json.dumps(parsed, indent=4))
     return content
+
+
+def merge_elements(content: json) -> json:
+    """
+    Merge elements with the same page number. Drop file metadata.
+    """
+
+    # Group elements by page number
+    grouped_elements = {}
+    for element in content['elements']:
+        page_number = element['Page']
+        if page_number not in grouped_elements:
+            grouped_elements[page_number] = []
+        grouped_elements[page_number].append(element['Text'])
+
+    # Merge and concatenate texts
+    merged_elements = []
+    for page_number, texts in grouped_elements.items():
+        merged_text = ' '.join(texts)
+        merged_elements.append({"Page": page_number, "Text": merged_text})
+
+    # Reconstruct the JSON structure
+    result = {"elements": merged_elements}
+
+    return result
+
+
+def fix_page_numbers(content: json) -> json:
+    """
+    Fix page numbers
+    """
+
+    for element in content['elements']:
+        element['Page'] += 1
+
+    return content
+
+
+def clean_json_from_adobe(content: json) -> json:
+    """
+    Clean JSON content extracted from Adobe PDF Services
+    """
+
+    # Remove unnecessary keys
+    content = remove_keys(content)
+
+    # Merge elements with the same page number
+    content = merge_elements(content)
+
+    # Fix page numbers
+    content = fix_page_numbers(content)
+
+    return content
+
 
 def extract_text_from_pdf(path: str, credentials: ServicePrincipalCredentials):
     file = open(path, 'rb')
@@ -46,7 +104,8 @@ def extract_text_from_pdf(path: str, credentials: ServicePrincipalCredentials):
     pdf_services = PDFServices(credentials=credentials)
 
     # Creates an asset(s) from source file(s) and upload
-    input_asset = pdf_services.upload(input_stream=input_stream, mime_type=PDFServicesMediaType.PDF)
+    input_asset = pdf_services.upload(
+        input_stream=input_stream, mime_type=PDFServicesMediaType.PDF)
 
     # Create parameters for the job
     extract_pdf_params = ExtractPDFParams(
@@ -54,11 +113,13 @@ def extract_text_from_pdf(path: str, credentials: ServicePrincipalCredentials):
     )
 
     # Creates a new job instance
-    extract_pdf_job = ExtractPDFJob(input_asset=input_asset, extract_pdf_params=extract_pdf_params)
+    extract_pdf_job = ExtractPDFJob(
+        input_asset=input_asset, extract_pdf_params=extract_pdf_params)
 
     # Submit the job and gets the job result
     location = pdf_services.submit(extract_pdf_job)
-    pdf_services_response = pdf_services.get_job_result(location, ExtractPDFResult)
+    pdf_services_response = pdf_services.get_job_result(
+        location, ExtractPDFResult)
 
     # Get content from the resulting asset(s)
     result_asset: CloudAsset = pdf_services_response.get_result().get_resource()
@@ -76,4 +137,5 @@ def extract_text_from_pdf(path: str, credentials: ServicePrincipalCredentials):
         with zip_ref.open('structuredData.json') as f:
             content = f.read()
             parsed = json.loads(content.decode('utf-8'))
-            return(clean_json(parsed))  # Assuming the file is text; decode accordingly
+            # Assuming the file is text; decode accordingly
+            return (clean_json_from_adobe(parsed))

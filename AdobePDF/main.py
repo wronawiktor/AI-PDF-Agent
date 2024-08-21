@@ -34,7 +34,6 @@ else:
     logging.warning("Wrong resource directory: %s", RES_DIR)
     exit(1)
 
-# BIG_TEXT = "###".join(text_extracted)
 CONTEXT = "###"
 for key, value in text_extracted.items():
     CONTEXT += "FILE_NAME:" + key + "\n FILE CONTENT:" + str(value) + "###\n"
@@ -66,7 +65,7 @@ while True:
     user_input = input("User (type 'exit' to quit): ")
     if user_input.lower() == "exit":
         break
-    
+
     messages.append({"role": "user", "content": user_input})
     response = AIclient.chat.completions.create(
         model=MODEL,
