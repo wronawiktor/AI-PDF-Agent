@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 from Adobe_extract_text import extract_text_from_pdf
+from token_helper import estimate_cost
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -52,13 +53,20 @@ You will be provided with an input prompt and content as context that can be use
     2b. If the content is not relevant, use your own knowledge to reply or say that you don't know how to respond if your knowledge is not sufficient to answer.
     Stay concise with your answer, replying specifically to the input prompt without mentioning additional information provided in the context content.
 """
-MODEL="gpt-4-turbo-preview"
+MODEL="gpt-4-turbo-2024-04-09"
 
 messages=[
     {"role": "system", "content": SYSTEM_PROMPT},
     {"role": "system", "content": "Input prompt:"+CONTEXT},
     {"role": "assistant", "content": "What can I help you with?"},
   ]
+
+query_cost = estimate_cost(str(messages), MODEL)
+print(f"Estimated cost per query: ${query_cost:.2f}")
+decsion = input("Do you want to continue? (yes/no): ")
+if decsion.lower() == "no":
+    exit(0)
+
 print("AI: What can I help you with?")
 
 while True:
