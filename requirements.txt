@@ -2,3 +2,4 @@ pdfservices-sdk==4.0.0
 python-dotenv==1.0.1
 openai==1.41.1
 tiktoken==0.7.0
+pdf2image==1.17.0

@@ -2,4 +2,5 @@
 output/*
 .env
 AdobePDF/resources/*
+GPT-OCR/resources/*
 __pycache__
