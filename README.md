@@ -43,3 +43,7 @@ Ensure you have the following environment variables set up in your `.env` file:
 # GPT OCR
 WiP
 
+# Llama3
+(WiP)
+This is the most advanced Agent in this repository so far. Its main task is to work with a huge knowledge base (exceeding context), which may contain sensitive data. It uses a privately run Llama3.1 model that works with the Qdrant database.
+

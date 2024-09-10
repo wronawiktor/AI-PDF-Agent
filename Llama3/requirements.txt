@@ -1,0 +1,4 @@
+ollama==0.3.2
+qdrant_client==1.11.1
+pdfminer.six==20240706
+textsplitter==1.0.3

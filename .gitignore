@@ -1,6 +1,7 @@
-.venv/*
+.venv
 output/*
 .env
 AdobePDF/resources/*
 GPT-OCR/resources/*
+Llama3/resources/*
 __pycache__
